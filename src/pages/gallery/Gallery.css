@@ -1,0 +1,21 @@
+.gallery-main {
+    flex: 1;
+    width: 100%;
+}
+
+.gallery-header {
+    text-align: center;
+    padding: 3rem 2rem 0;
+    background-color: var(--primary-color);
+}
+
+.gallery-header h1 {
+    font-size: 3rem;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.gallery-header p {
+    font-size: 1.2rem;
+    color: #cbd5e1;
+}

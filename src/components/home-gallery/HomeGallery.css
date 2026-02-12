@@ -1,0 +1,105 @@
+.home-gallery-section {
+    padding: 4rem 2rem;
+    background-color: var(--primary-color);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-featured-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #f8fafc;
+}
+
+.section-description {
+    color: #94a3b8;
+    font-size: 1.1rem;
+}
+
+.home-gallery-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.home-art-card {
+    background-color: var(--secondary-color);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 350px;
+    transition: transform 0.3s ease;
+}
+
+.home-art-card:hover {
+    transform: translateY(-5px);
+}
+
+.home-art-image-wrapper {
+    height: 200px;
+    overflow: hidden;
+}
+
+.home-art-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home-art-info {
+    padding: 1.5rem;
+}
+
+.home-art-info h3 {
+    font-size: 1.25rem;
+    color: #f1f5f9;
+    margin-bottom: 0.5rem;
+}
+
+.home-art-artist {
+    color: #38bdf8;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.home-gallery-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.explore-button {
+    background-color: #38bdf8;
+    color: #0f172a;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.explore-button:hover {
+    background-color: #0ea5e9;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    letter-spacing: 0.5px;
+}
+
+/* Responsiveness using Media Queries and Flexbox behavior */
+@media (max-width: 768px) {
+    .home-art-card {
+        width: 100%;
+    }
+
+    .section-featured-title {
+        font-size: 2rem;
+    }
+}
