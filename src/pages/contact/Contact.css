@@ -1,0 +1,151 @@
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.contact-main {
+    flex: 1;
+    max-width: 1200px;
+    /* Increased to fit both columns */
+    margin: 0 auto;
+    padding: 2rem;
+    width: 100%;
+}
+
+.contact-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.contact-header h1 {
+    font-size: 3rem;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.contact-header p {
+    font-size: 1.2rem;
+    color: #cbd5e1;
+}
+
+.contact-layout {
+    display: flex;
+    flex-wrap: wrap;
+    /* Allow wrapping on smaller screens */
+    gap: 3rem;
+    align-items: flex-start;
+}
+
+.contact-form-section {
+    flex: 1;
+    min-width: 300px;
+}
+
+.contact-map-section {
+    flex: 1;
+    min-width: 300px;
+}
+
+.contact-form-section h2,
+.contact-map-section h2 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    border-left: 4px solid var(--accent-color);
+    padding-left: 1rem;
+}
+
+.contact-form {
+    background-color: var(--secondary-color);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.map-container {
+    height: 100%;
+    min-height: 450px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: var(--secondary-color);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #cbd5e1;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #334155;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    font-family: inherit;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.submit-button {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+.submit-button:hover {
+    background-color: #0ea5e9;
+}
+
+
+.success-message {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    /* Emerald 500 */
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive adjustment for mobile */
+@media (max-width: 768px) {
+    .contact-layout {
+        flex-direction: column;
+    }
+
+    .contact-map-section {
+        width: 100%;
+        margin-top: 2rem;
+        order: 2;
+        /* Ensure map is below form on mobile */
+    }
+
+    .contact-form-section {
+        width: 100%;
+        order: 1;
+    }
+}
