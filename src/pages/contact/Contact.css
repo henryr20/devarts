@@ -7,7 +7,6 @@
 .contact-main {
     flex: 1;
     max-width: 1200px;
-    /* Increased to fit both columns */
     margin: 0 auto;
     padding: 2rem;
     width: 100%;
@@ -32,7 +31,6 @@
 .contact-layout {
     display: flex;
     flex-wrap: wrap;
-    /* Allow wrapping on smaller screens */
     gap: 3rem;
     align-items: flex-start;
 }
@@ -122,7 +120,6 @@
 .success-message {
     background-color: rgba(16, 185, 129, 0.1);
     color: #10b981;
-    /* Emerald 500 */
     padding: 1rem;
     border-radius: 6px;
     text-align: center;
@@ -131,7 +128,6 @@
     animation: fadeIn 0.5s ease-out;
 }
 
-/* Responsive adjustment for mobile */
 @media (max-width: 768px) {
     .contact-layout {
         flex-direction: column;
@@ -141,7 +137,6 @@
         width: 100%;
         margin-top: 2rem;
         order: 2;
-        /* Ensure map is below form on mobile */
     }
 
     .contact-form-section {

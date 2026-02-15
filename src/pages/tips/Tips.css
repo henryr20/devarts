@@ -55,7 +55,6 @@
     }
 }
 
-/* Sutil parpadeo de sombra */
 @keyframes glow-pulse {
     0% {
         box-shadow: 0 0 5px rgba(56, 189, 248, 0.3);
@@ -126,7 +125,6 @@
     line-height: 1.6;
 }
 
-/* New Styles for Video Overlay and Level Badge */
 .tip-image-container {
     position: relative;
 }
@@ -173,20 +171,16 @@
 
 .tip-level-badge.beginner {
     background-color: #10b981;
-    /* Emerald */
 }
 
 .tip-level-badge.intermediate {
     background-color: #f59e0b;
-    /* Amber */
 }
 
 .tip-level-badge.advanced {
     background-color: #ef4444;
-    /* Red */
 }
 
-/* Modal styles need to be here or shared */
 .tip-modal-content {
     display: flex;
     flex-direction: column;
@@ -198,7 +192,6 @@
 .video-container {
     position: relative;
     padding-bottom: 56.25%;
-    /* 16:9 aspect ratio */
     height: 0;
     overflow: hidden;
     margin-bottom: 1.5rem;

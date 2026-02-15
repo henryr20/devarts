@@ -10,7 +10,6 @@ const Tips = () => {
 
     const getYouTubeThumbnail = (url) => {
         if (!url) return null;
-        // Extracts video ID from embed or watch URL
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
         const match = url.match(regExp);
         if (match && match[2].length === 11) {

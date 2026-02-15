@@ -1,13 +1,8 @@
-/* Global Styles for DevArts */
 :root {
   --primary-color: #121212;
-  /* Neutral Black/Dark Gray */
   --secondary-color: #262626;
-  /* Neutral Dark Gray for cards */
   --accent-color: #38bdf8;
-  /* Keep the Blue Accent */
   --text-color: #e5e5e5;
-  /* Neutral Light Gray */
   --font-family: 'Inter', sans-serif;
 }
 
@@ -20,7 +15,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Global pointer-events fixed */
 * {
   box-sizing: border-box;
 }

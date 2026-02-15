@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faInstagram, faXTwitter, faReddit } from '@fortawesome/free-brands-svg-icons';
+import { faInstagram, faXTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faHexagonNodes } from '@fortawesome/free-solid-svg-icons'
 
 const Footer = () => {
@@ -27,10 +27,9 @@ const Footer = () => {
                 <div className="footer-section">
                     <h4>Connect</h4>
                     <div className="social-icons">
-                        {/* Placeholders for social icons */}
                         <a href="https://x.com/" target="_blank" rel="noopener noreferrer" className="social-icon"><FontAwesomeIcon icon={faXTwitter} />Twitter</a>
                         <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="social-icon"><FontAwesomeIcon icon={faInstagram} />Instagram</a>
-                        <a href="https://www.reddit.com/henryr20/Devarts.com" target="_blank" rel="noopener noreferrer" className="social-icon"><FontAwesomeIcon icon={faReddit} />Reddit</a>
+                        <a href="https://github.com/henryr20/devarts" target="_blank" rel="noopener noreferrer" className="social-icon"><FontAwesomeIcon icon={faGithub} />GitHub</a>
                     </div>
                 </div>
             </div>

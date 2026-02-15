@@ -10,10 +10,8 @@ const Home = () => {
     const [dailyTip, setDailyTip] = useState(null);
 
     useEffect(() => {
-        // Scroll to top on mount
         window.scrollTo(0, 0);
 
-        // Select a random tip
         const randomIndex = Math.floor(Math.random() * tipsData.length);
         setDailyTip(tipsData[randomIndex]);
     }, []);

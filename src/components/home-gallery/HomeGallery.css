@@ -93,7 +93,6 @@
     letter-spacing: 1px;
 }
 
-/* Responsiveness using Media Queries and Flexbox behavior */
 @media (max-width: 768px) {
     .home-art-card {
         width: 100%;
