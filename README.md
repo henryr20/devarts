@@ -56,7 +56,7 @@ The UI/UX design is based on the technical and sleek aesthetic of professional a
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/devarts.git
+    git clone https://github.com/henryr20/devarts.git
     ```
 2.  **Install dependencies**:
     ```bash
