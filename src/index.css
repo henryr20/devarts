@@ -20,15 +20,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Global pointer-events fixed */
 * {
   box-sizing: border-box;
-}
-
-p,
-span,
-h1,
-h2,
-h3,
-h4 {
-  pointer-events: none;
 }

@@ -36,7 +36,9 @@ const Footer = () => {
             </div>
             <div className="footer-bottom">
                 <p>&copy; {currentYear} DevArts | All rights reserved.</p>
-                <p>Privacy Policy & Cookies | Terms of Sale</p>
+                <p>
+                    <Link to="/legal">Privacy Policy & Cookies | Terms of Sale</Link>
+                </p>
             </div>
         </footer>
     );
