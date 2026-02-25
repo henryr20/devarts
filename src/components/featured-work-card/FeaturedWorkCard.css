@@ -1,0 +1,84 @@
+.home-art-card {
+    background-color: var(--secondary-color);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 350px;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.home-art-card:hover {
+    transform: translateY(-5px);
+}
+
+.home-art-image-wrapper {
+    height: 200px;
+    overflow: hidden;
+}
+
+.home-art-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home-art-info {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.home-art-info h3 {
+    font-size: 1.25rem;
+    color: #f1f5f9;
+    margin-bottom: 0.5rem;
+}
+
+.home-art-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.home-art-artist {
+    color: #38bdf8;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.like-button {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+    font-size: 1rem;
+    padding: 0;
+}
+
+.like-button:hover {
+    color: #ef4444;
+    /* elegant red */
+    transform: scale(1.1);
+}
+
+.like-icon {
+    font-size: 1.1rem;
+}
+
+.like-count {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .home-art-card {
+        width: 100%;
+    }
+}
