@@ -11,10 +11,9 @@ const Forum = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Simulating fetching data from Firebase
         const fetchPosts = async () => {
             try {
-                const response = await fetch('/firebase-mock-data.json');
+                const response = await fetch('/forum-data.json');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
@@ -22,8 +21,6 @@ const Forum = () => {
                 setPosts(data);
                 setFilteredPosts(data);
 
-                // Extract unique categories
-                // Get all categories, use Set for uniqueness, put "All" at the beginning
                 const uniqueCatSet = new Set(data.map(post => post.category));
                 const uniqueCategories = ['All', ...Array.from(uniqueCatSet)];
                 setCategories(uniqueCategories);

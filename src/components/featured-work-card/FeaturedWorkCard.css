@@ -64,7 +64,6 @@
 
 .like-button:hover {
     color: #ef4444;
-    /* elegant red */
     transform: scale(1.1);
 }
 

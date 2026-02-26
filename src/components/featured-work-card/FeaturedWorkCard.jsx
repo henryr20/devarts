@@ -7,7 +7,7 @@ const FeaturedWorkCard = ({ art }) => {
     const [likes, setLikes] = useState(0);
 
     const handleLike = (e) => {
-        e.stopPropagation(); // Avoid triggering card events if wrapped in link later
+        e.stopPropagation();
         setLikes(prev => prev + 1);
     };
 
