@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   collection,
   getDocs,
@@ -7,10 +7,13 @@ import {
   updateDoc,
   doc,
   increment,
-  onSnapshot
+  onSnapshot,
+  addDoc,
+  deleteDoc,
+  serverTimestamp
 } from "firebase/firestore";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faEdit, faTrash, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { db } from "../../firebase";
 import "./ForumPosts.css";
 
@@ -21,6 +24,11 @@ export default function ForumPosts() {
   const [sortMode, setSortMode] = useState("newest");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [formData, setFormData] = useState({ title: "", content: "", category: "General" });
+  const [editingId, setEditingId] = useState(null);
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const formRef = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -82,6 +90,73 @@ export default function ForumPosts() {
     }
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.title.trim() || !formData.content.trim()) return;
+
+    try {
+      if (editingId) {
+        const postRef = doc(db, "posts", editingId);
+        await updateDoc(postRef, {
+          title: formData.title,
+          content: formData.content,
+          category: formData.category || "General",
+        });
+        setEditingId(null);
+      } else {
+        await addDoc(collection(db, "posts"), {
+          title: formData.title,
+          content: formData.content,
+          category: formData.category || "General",
+          likes: 0,
+          createdAt: serverTimestamp(),
+        });
+      }
+      setFormData({ title: "", content: "", category: "General" });
+      setIsFormVisible(false);
+    } catch (err) {
+      console.error("Error saving post:", err);
+      setError("Error saving post. Please try again.");
+    }
+  };
+
+  const handleEdit = (post) => {
+    setFormData({
+      title: post.title || "",
+      content: post.content || "",
+      category: post.category || "General",
+    });
+    setEditingId(post.id);
+    setIsFormVisible(true);
+
+    setTimeout(() => {
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  };
+
+  const handleDelete = async (postId) => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    try {
+      await deleteDoc(doc(db, "posts", postId));
+    } catch (err) {
+      console.error("Error deleting post:", err);
+      setError("Error deleting post.");
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({ title: "", content: "", category: "General" });
+    setEditingId(null);
+    setIsFormVisible(false);
+  };
+
   const formatDate = (timestamp) => {
     if (!timestamp) return "Just now";
 
@@ -111,7 +186,55 @@ export default function ForumPosts() {
 
   return (
     <div className="forum-section">
-      <h2 style={{ marginBottom: 24, textAlign: 'center' }}>Community Forum</h2>
+      <h2 style={{ marginBottom: 24, textAlign: 'center' }} ref={formRef}>Community Forum</h2>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <button
+          className="refresh-btn"
+          onClick={() => {
+            if (isFormVisible) resetForm();
+            else setIsFormVisible(true);
+          }}
+          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        >
+          <FontAwesomeIcon icon={isFormVisible ? faTimes : faPlus} />
+          {isFormVisible ? "Cancel" : "Create Post"}
+        </button>
+      </div>
+
+      {isFormVisible && (
+        <form className="create-post-form" onSubmit={handleSubmit}>
+          <h3>{editingId ? "Edit Post" : "Create a New Post"}</h3>
+          <div className="form-grid">
+            <input
+              className="form-input"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              placeholder="Post Title (Required)"
+              required
+            />
+            <input
+              className="form-input"
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              placeholder="Category (e.g. Tips, React, General)"
+            />
+            <textarea
+              className="form-textarea"
+              name="content"
+              value={formData.content}
+              onChange={handleInputChange}
+              placeholder="What do you want to share? (Required)"
+              required
+            />
+            <button type="submit" className="submit-post-btn">
+              {editingId ? "Update Post" : "Submit Post"}
+            </button>
+          </div>
+        </form>
+      )}
 
       <section className="forum-controls">
         <input
@@ -182,6 +305,23 @@ export default function ForumPosts() {
                       >
                         <FontAwesomeIcon icon={faHeart} className="like-icon" />
                         <span className="like-count">{p.likes ?? 0}</span>
+                      </button>
+                    </div>
+
+                    <div className="post-actions" style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        className="like-btn"
+                        onClick={() => handleEdit(p)}
+                        style={{ color: '#94a3b8', border: '1px solid rgba(148, 163, 184, 0.2)' }}
+                      >
+                        <FontAwesomeIcon icon={faEdit} />
+                      </button>
+                      <button
+                        className="like-btn"
+                        onClick={() => handleDelete(p.id)}
+                        style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </div>
                   </div>

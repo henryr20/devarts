@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+<channel>
+  <title>DevArts Platform News</title>
+  <link>https://devarts-d89d6.web.app/news</link>
+  <description>Latest news and updates from the DevArts Platform.</description>
+  <atom:link href="https://devarts-d89d6.web.app/rss.xml" rel="self" type="application/rss+xml" />
+  
+  <item>
+    <title>Platform Update: Enhanced Node Interface</title>
+    <link>https://devarts-d89d6.web.app/news/4</link>
+    <description>Our latest platform update introduces a significantly improved node-based interface for technical workflows. The new system offers better performance and more intuitive connections for complex project management.</description>
+    <pubDate>Sat, 14 Mar 2026 10:00:00 GMT</pubDate>
+    <guid>https://devarts-d89d6.web.app/news/4</guid>
+    <enclosure url="https://devarts-d89d6.web.app/news-platform-update.png" length="0" type="image/png" />
+    <media:content url="https://devarts-d89d6.web.app/news-platform-update.png" medium="image" />
+  </item>
+  <item>
+    <title>Mastering AI-Driven Workflows</title>
+    <link>https://devarts-d89d6.web.app/news/3</link>
+    <description>Discover how artificial intelligence is transforming the technical art landscape. This guide explores integration techniques for machine learning models within standard 3D asset pipelines, maximizing efficiency without sacrificing creative control.</description>
+    <pubDate>Thu, 12 Mar 2026 09:00:00 GMT</pubDate>
+    <guid>https://devarts-d89d6.web.app/news/3</guid>
+    <enclosure url="https://devarts-d89d6.web.app/news-ai-workflow.png" length="0" type="image/png" />
+    <media:content url="https://devarts-d89d6.web.app/news-ai-workflow.png" medium="image" />
+  </item>
+  <item>
+    <title>Community Forum CRUD Features</title>
+    <link>https://devarts-d89d6.web.app/news/2</link>
+    <description>Users can now create, edit, and delete their own posts directly within the community forum. This allows for a more interactive and dynamic community experience, deeply integrated with Firebase Firestore in real-time.</description>
+    <pubDate>Wed, 04 Mar 2026 00:00:00 GMT</pubDate>
+    <guid>https://devarts-d89d6.web.app/news/2</guid>
+  </item>
+  <item>
+    <title>Welcome to the New DevArts Platform!</title>
+    <link>https://devarts-d89d6.web.app/news/1</link>
+    <description>We have officially launched the new platform featuring a community forum, an art gallery, and coding tips.</description>
+    <pubDate>Mon, 02 Mar 2026 00:00:00 GMT</pubDate>
+    <guid>https://devarts-d89d6.web.app/news/1</guid>
+  </item>
+</channel>
+</rss>
