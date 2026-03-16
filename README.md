@@ -62,7 +62,7 @@ The UI/UX focuses on a "Dark Mode" technical aesthetic:
 ## 📡 Deployment & Deliverables
 
 ### RSS Feed Reader
-The RSS feed has been verified using a standard reader. Each item redirects the user back to the application's hosted URLs on Firebase.
+The RSS feed has been verified using a standard reader. Each item redirects the user back to the application's local URL (localhost).
 
 **RSS Reader Insight:**
 ![RSS Feed Reader Screenshot](/src/assets/images/RSS.jpg)

@@ -12,9 +12,11 @@ import {
   deleteDoc,
   serverTimestamp
 } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faEdit, faTrash, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { db } from "../../firebase";
+import { db, storage } from "../../firebase";
+import Modal from "../modal/Modal";
 import "./ForumPosts.css";
 
 export default function ForumPosts() {
@@ -26,9 +28,12 @@ export default function ForumPosts() {
   const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({ title: "", content: "", category: "General" });
+  const [imageFile, setImageFile] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const formRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -79,6 +84,8 @@ export default function ForumPosts() {
     return result;
   }, [posts, searchText, selectedCategory, sortMode]);
 
+  const [selectedPostForModal, setSelectedPostForModal] = useState(null);
+
   const handleLike = async (postId) => {
     try {
       const postRef = doc(db, "posts", postId);
@@ -99,29 +106,52 @@ export default function ForumPosts() {
     e.preventDefault();
     if (!formData.title.trim() || !formData.content.trim()) return;
 
+    setError("");
+    setUploading(true);
+    let imageUrl = null;
+
     try {
+      if (imageFile) {
+        if (imageFile.size > 1024 * 1024) { 
+          throw new Error("Image too large. Please select a file smaller than 1MB.");
+        }
+
+        imageUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(imageFile);
+        });
+      }
+
       if (editingId) {
         const postRef = doc(db, "posts", editingId);
-        await updateDoc(postRef, {
+        const updateData = {
           title: formData.title,
           content: formData.content,
           category: formData.category || "General",
-        });
+        };
+        if (imageUrl) updateData.imageUrl = imageUrl;
+        await updateDoc(postRef, updateData);
         setEditingId(null);
       } else {
         await addDoc(collection(db, "posts"), {
           title: formData.title,
           content: formData.content,
           category: formData.category || "General",
+          imageUrl: imageUrl || null,
           likes: 0,
           createdAt: serverTimestamp(),
         });
       }
       setFormData({ title: "", content: "", category: "General" });
+      setImageFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = ""; 
       setIsFormVisible(false);
     } catch (err) {
-      console.error("Error saving post:", err);
-      setError("Error saving post. Please try again.");
+      setError(`Error: ${err.message}`);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -132,6 +162,8 @@ export default function ForumPosts() {
       category: post.category || "General",
     });
     setEditingId(post.id);
+    setImageFile(null); // Clear any pending image selection from other posts
+    if (fileInputRef.current) fileInputRef.current.value = "";
     setIsFormVisible(true);
 
     setTimeout(() => {
@@ -153,6 +185,8 @@ export default function ForumPosts() {
 
   const resetForm = () => {
     setFormData({ title: "", content: "", category: "General" });
+    setImageFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
     setEditingId(null);
     setIsFormVisible(false);
   };
@@ -185,152 +219,180 @@ export default function ForumPosts() {
   };
 
   return (
-    <div className="forum-section">
-      <h2 style={{ marginBottom: 24, textAlign: 'center' }} ref={formRef}>Community Forum</h2>
+    <>
+      <div className="forum-section">
+        <h2 style={{ marginBottom: 24, textAlign: 'center' }} ref={formRef}>Community Forum</h2>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        <button
-          className="refresh-btn"
-          onClick={() => {
-            if (isFormVisible) resetForm();
-            else setIsFormVisible(true);
-          }}
-          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-        >
-          <FontAwesomeIcon icon={isFormVisible ? faTimes : faPlus} />
-          {isFormVisible ? "Cancel" : "Create Post"}
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+          <button
+            className="refresh-btn"
+            onClick={() => {
+              if (isFormVisible) resetForm();
+              else setIsFormVisible(true);
+            }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+          >
+            <FontAwesomeIcon icon={isFormVisible ? faTimes : faPlus} />
+            {isFormVisible ? "Cancel" : "Create Post"}
+          </button>
+        </div>
+
+        {isFormVisible && (
+          <form className="create-post-form" onSubmit={handleSubmit}>
+            <h3>{editingId ? "Edit Post" : "Create a New Post"}</h3>
+            <div className="form-grid">
+              <input
+                className="form-input"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="Post Title (Required)"
+                required
+              />
+              <input
+                className="form-input"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                placeholder="Category (e.g. Tips, React, General)"
+              />
+              <textarea
+                className="form-textarea"
+                name="content"
+                value={formData.content}
+                onChange={handleInputChange}
+                placeholder="What do you want to share? (Required)"
+                required
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files[0])}
+                className="form-input file-input"
+                ref={fileInputRef}
+              />
+              <button type="submit" className="submit-post-btn" disabled={uploading}>
+                {uploading ? "Saving..." : (editingId ? "Update Post" : "Submit Post")}
+              </button>
+            </div>
+          </form>
+        )}
+
+        <section className="forum-controls">
+          <input
+            className="search-bar"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="Search in title or content..."
+          />
+
+          <div className="filter-group">
+            <select
+              className="filter-select"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c === "Todas" ? "All" : c}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="filter-select"
+              value={sortMode}
+              onChange={(e) => setSortMode(e.target.value)}
+            >
+              <option value="newest">Newest First</option>
+              <option value="mostLiked">Most Liked</option>
+            </select>
+          </div>
+        </section>
+
+        {loading && <p style={{ textAlign: 'center', margin: '40px 0' }}>Loading community posts...</p>}
+        {error && <p style={{ color: "crimson", textAlign: 'center' }}>{error}</p>}
+
+        {!loading && !error && (
+          <>
+            <p style={{ fontSize: '0.9rem', marginBottom: 16, opacity: 0.7 }}>
+              Showing <b>{filteredPosts.length}</b> of {posts.length} posts
+            </p>
+
+            {filteredPosts.length === 0 ? (
+              <p style={{ textAlign: 'center', opacity: 0.5, margin: '40px 0' }}>No posts found with these filters.</p>
+            ) : (
+              <ul className="posts-list">
+                {filteredPosts.map((p) => (
+                  <li key={p.id} className="post-card">
+                    <div className="post-header">
+                      <h3 className="post-title">{p.title}</h3>
+                      <span className="post-date">{formatDate(p.createdAt)}</span>
+                    </div>
+
+                    <div className="post-meta">
+                      <span className="post-category">{p.category}</span>
+                    </div>
+
+                    <p className="post-content">
+                      {p.content}
+                    </p>
+
+                    {p.imageUrl && (
+                      <div className="post-image-container" onClick={() => setSelectedPostForModal(p)}>
+                        <img src={p.imageUrl} alt="Post attached" className="post-image" />
+                      </div>
+                    )}
+
+                    <div className="post-footer">
+                      <div className="like-section">
+                        <button
+                          className="like-btn"
+                          onClick={() => handleLike(p.id)}
+                          aria-label="Like"
+                        >
+                          <FontAwesomeIcon icon={faHeart} className="like-icon" />
+                          <span className="like-count">{p.likes ?? 0}</span>
+                        </button>
+                      </div>
+
+                      <div className="post-actions" style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          className="like-btn"
+                          onClick={() => handleEdit(p)}
+                          style={{ color: '#94a3b8', border: '1px solid rgba(148, 163, 184, 0.2)' }}
+                        >
+                          <FontAwesomeIcon icon={faEdit} />
+                        </button>
+                        <button
+                          className="like-btn"
+                          onClick={() => handleDelete(p.id)}
+                          style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
       </div>
 
-      {isFormVisible && (
-        <form className="create-post-form" onSubmit={handleSubmit}>
-          <h3>{editingId ? "Edit Post" : "Create a New Post"}</h3>
-          <div className="form-grid">
-            <input
-              className="form-input"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              placeholder="Post Title (Required)"
-              required
-            />
-            <input
-              className="form-input"
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              placeholder="Category (e.g. Tips, React, General)"
-            />
-            <textarea
-              className="form-textarea"
-              name="content"
-              value={formData.content}
-              onChange={handleInputChange}
-              placeholder="What do you want to share? (Required)"
-              required
-            />
-            <button type="submit" className="submit-post-btn">
-              {editingId ? "Update Post" : "Submit Post"}
-            </button>
+      {selectedPostForModal && (
+        <Modal isOpen={!!selectedPostForModal} onClose={() => setSelectedPostForModal(null)}>
+          <div className="art-modal-content">
+            <img src={selectedPostForModal.imageUrl} alt={selectedPostForModal.title} className="modal-image" />
+            <div className="modal-info">
+              <h2>{selectedPostForModal.title}</h2>
+              <p className="modal-artist">Category: {selectedPostForModal.category}</p>
+              <p className="modal-description">{selectedPostForModal.content}</p>
+            </div>
           </div>
-        </form>
+        </Modal>
       )}
-
-      <section className="forum-controls">
-        <input
-          className="search-bar"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Search in title or content..."
-        />
-
-        <div className="filter-group">
-          <select
-            className="filter-select"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            {categories.map((c) => (
-              <option key={c} value={c}>
-                {c === "Todas" ? "All" : c}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="filter-select"
-            value={sortMode}
-            onChange={(e) => setSortMode(e.target.value)}
-          >
-            <option value="newest">Newest First</option>
-            <option value="mostLiked">Most Liked</option>
-          </select>
-        </div>
-      </section>
-
-      {loading && <p style={{ textAlign: 'center', margin: '40px 0' }}>Loading community posts...</p>}
-      {error && <p style={{ color: "crimson", textAlign: 'center' }}>{error}</p>}
-
-      {!loading && !error && (
-        <>
-          <p style={{ fontSize: '0.9rem', marginBottom: 16, opacity: 0.7 }}>
-            Showing <b>{filteredPosts.length}</b> of {posts.length} posts
-          </p>
-
-          {filteredPosts.length === 0 ? (
-            <p style={{ textAlign: 'center', opacity: 0.5, margin: '40px 0' }}>No posts found with these filters.</p>
-          ) : (
-            <ul className="posts-list">
-              {filteredPosts.map((p) => (
-                <li key={p.id} className="post-card">
-                  <div className="post-header">
-                    <h3 className="post-title">{p.title}</h3>
-                    <span className="post-date">{formatDate(p.createdAt)}</span>
-                  </div>
-
-                  <div className="post-meta">
-                    <span className="post-category">{p.category}</span>
-                  </div>
-
-                  <p className="post-content">
-                    {p.content}
-                  </p>
-
-                  <div className="post-footer">
-                    <div className="like-section">
-                      <button
-                        className="like-btn"
-                        onClick={() => handleLike(p.id)}
-                        aria-label="Like"
-                      >
-                        <FontAwesomeIcon icon={faHeart} className="like-icon" />
-                        <span className="like-count">{p.likes ?? 0}</span>
-                      </button>
-                    </div>
-
-                    <div className="post-actions" style={{ display: 'flex', gap: 8 }}>
-                      <button
-                        className="like-btn"
-                        onClick={() => handleEdit(p)}
-                        style={{ color: '#94a3b8', border: '1px solid rgba(148, 163, 184, 0.2)' }}
-                      >
-                        <FontAwesomeIcon icon={faEdit} />
-                      </button>
-                      <button
-                        className="like-btn"
-                        onClick={() => handleDelete(p.id)}
-                        style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
-      )}
-    </div>
+    </>
   );
 }

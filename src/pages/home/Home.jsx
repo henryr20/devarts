@@ -4,7 +4,8 @@ import Footer from '../../components/footer/Footer';
 import FeaturedTip from '../../components/featured-tip/FeaturedTip';
 import HomeGallery from '../../components/home-gallery/HomeGallery';
 import { tipsData } from '../../data/tips-data';
-import ForumPosts from "../../components/forum/ForumPosts"
+import ForumPosts from "../../components/forum/ForumPosts";
+import ForumStatsChart from "../../components/forum-stats/ForumStatsChart";
 import './Home.css';
 
 const Home = () => {
@@ -42,6 +43,8 @@ const Home = () => {
                         level={dailyTip.level}
                     />
                 )}
+                
+                <ForumStatsChart />
 
                 <ForumPosts />
 

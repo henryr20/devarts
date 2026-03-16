@@ -77,7 +77,7 @@ export default function News() {
             <main className="news-main">
                 <div className="news-header">
                     <h1>News & Updates</h1>
-                    <a href="https://devarts-d89d6.web.app/rss.xml" target="_blank" rel="noopener noreferrer" className="rss-link">
+                    <a href="/rss.xml" target="_blank" rel="noopener noreferrer" className="rss-link">
                         <FontAwesomeIcon icon={faRss} /> RSS Feed
                     </a>
                 </div>
