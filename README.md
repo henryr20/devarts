@@ -32,6 +32,20 @@ A functional communication hub featuring:
 - **Interactive Mapping**: Powered by **Leaflet**, providing a geographic context for the DevArts headquarters.
 - **Validated Contact Form**: A structured form with real-time feedback and submission handling.
 
+### 💾 Data Management (Import & Export)
+Fully integrated data portability system for community posts:
+- **Dynamic Export**: Generate and download application data in **CSV**, **XML**, and **JSON** formats.
+- **Bulk Import**: Seamlessly ingest data into the **Firebase Firestore** backend from structured files.
+- **Standardized Formats**: Adheres to strict schemas to ensure data integrity across platforms.
+
+---
+
+## 📂 Example Import Files
+Use these templates to test the platform's data ingestion capabilities:
+- 📄 [datos.csv](/datos.csv)
+- 📄 [datos.xml](/datos.xml)
+- 📄 [datos.json](/datos.json)
+
 ---
 
 ## 🧩 Technical Foundation
@@ -39,7 +53,8 @@ A functional communication hub featuring:
 ### 🛠️ Third-Party Libraries
 DevArts leverages industry-standard tools to provide a professional user experience:
 - **React Router Dom**: Orchestrates the seamless navigation between the Home, Gallery, Tips, News, and Contact pages. [Documentation](https://reactrouter.com/)
-- **Firebase / Firestore**: Provides the backend infrastructure for the real-time CRUD operations in the forum. [Documentation](https://firebase.google.com/docs/firestore)
+- **Firebase / Firestore / Storage**: Provides the backend infrastructure for real-time CRUD operations, image hosting, and centralized data management. [Documentation](https://firebase.google.com/docs/firestore)
+- **Centralized Service Architecture**: Implements a modular `services` layer to decouple UI from backend logic, enhancing maintainability and scalability.
 - **Leaflet & React Leaflet**: Powers the interactive geographic location features. [Documentation](https://react-leaflet.js.org/)
 - **FontAwesome**: High-quality vector icons used throughout the UI for navigation and social interaction. [Documentation](https://fontawesome.com/)
 

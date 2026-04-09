@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<posts>
+  <post>
+    <title>Unity Shader Graph: Custom Lighting</title>
+    <content>Implementing a custom cel-shading model in Unity using the Shader Graph. Perfect for stylized technical art projects!</content>
+    <category>Shaders</category>
+    <likes>30</likes>
+    <imageUrl>https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&q=80&w=800</imageUrl>
+  </post>
+  <post>
+    <title>ZBrush Sculpting Workflow</title>
+    <content>How to manage high-poly counts when sculpting hero assets. Using layers and stashing efficiently.</content>
+    <category>Sculpting</category>
+    <likes>18</likes>
+    <imageUrl>https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=800</imageUrl>
+  </post>
+</posts>

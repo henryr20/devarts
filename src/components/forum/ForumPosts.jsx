@@ -1,21 +1,21 @@
-import { useEffect, useMemo, useState, useRef } from "react";
-import {
-  collection,
-  getDocs,
-  orderBy,
-  query,
-  updateDoc,
-  doc,
-  increment,
-  onSnapshot,
-  addDoc,
-  deleteDoc,
-  serverTimestamp
-} from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faEdit, faTrash, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { db, storage } from "../../firebase";
+import { faHeart, faEdit, faTrash, faPlus, faTimes, faFileExport, faFileImport } from '@fortawesome/free-solid-svg-icons';
+import { 
+  subscribeToPosts, 
+  addPost, 
+  updatePost, 
+  deletePost, 
+  likePost,
+  getAllPosts
+} from "../../services/posts.service";
+import { 
+  postsToCSV, 
+  postsToXML, 
+  downloadFile, 
+  parseCSV, 
+  parseXML 
+} from "../../services/data-io.service";
 import Modal from "../modal/Modal";
 import "./ForumPosts.css";
 
@@ -37,20 +37,18 @@ export default function ForumPosts() {
 
   useEffect(() => {
     setLoading(true);
-    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-
-    const unsubscribe = onSnapshot(q, (snap) => {
-      const data = snap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setPosts(data);
-      setLoading(false);
-    }, (err) => {
-      console.error(err);
-      setError("Error loading posts. Please check Firebase configuration.");
-      setLoading(false);
-    });
+    const unsubscribe = subscribeToPosts(
+      (data) => {
+        setPosts(data);
+        setLoading(false);
+      },
+      { sortBy: "createdAt", direction: "desc" },
+      (err) => {
+        console.error(err);
+        setError("Error loading posts. Please check Firebase configuration.");
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
@@ -88,10 +86,7 @@ export default function ForumPosts() {
 
   const handleLike = async (postId) => {
     try {
-      const postRef = doc(db, "posts", postId);
-      await updateDoc(postRef, {
-        likes: increment(1)
-      });
+      await likePost(postId);
     } catch (e) {
       console.error("Error liking post:", e);
     }
@@ -124,25 +119,18 @@ export default function ForumPosts() {
         });
       }
 
+      const postPayload = {
+        title: formData.title,
+        content: formData.content,
+        category: formData.category || "General",
+        imageUrl: imageUrl || null
+      };
+
       if (editingId) {
-        const postRef = doc(db, "posts", editingId);
-        const updateData = {
-          title: formData.title,
-          content: formData.content,
-          category: formData.category || "General",
-        };
-        if (imageUrl) updateData.imageUrl = imageUrl;
-        await updateDoc(postRef, updateData);
+        await updatePost(editingId, postPayload);
         setEditingId(null);
       } else {
-        await addDoc(collection(db, "posts"), {
-          title: formData.title,
-          content: formData.content,
-          category: formData.category || "General",
-          imageUrl: imageUrl || null,
-          likes: 0,
-          createdAt: serverTimestamp(),
-        });
+        await addPost(postPayload);
       }
       setFormData({ title: "", content: "", category: "General" });
       setImageFile(null);
@@ -176,11 +164,86 @@ export default function ForumPosts() {
   const handleDelete = async (postId) => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
     try {
-      await deleteDoc(doc(db, "posts", postId));
+      await deletePost(postId);
     } catch (err) {
       console.error("Error deleting post:", err);
       setError("Error deleting post.");
     }
+  };
+
+  const handleExport = async (format) => {
+    try {
+      setLoading(true);
+      const allPosts = await getAllPosts();
+      let content = "";
+      let mimeType = "text/plain";
+      let fileName = `posts_export.${format}`;
+
+      if (format === "json") {
+        content = JSON.stringify(allPosts, null, 2);
+        mimeType = "application/json";
+      } else if (format === "csv") {
+        content = postsToCSV(allPosts);
+        mimeType = "text/csv";
+      } else if (format === "xml") {
+        content = postsToXML(allPosts);
+        mimeType = "application/xml";
+      }
+
+      downloadFile(content, fileName, mimeType);
+    } catch (err) {
+      console.error("Export error:", err);
+      setError("Failed to export data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImport = (e, format) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        setLoading(true);
+        const text = event.target.result;
+        let importedPosts = [];
+
+        if (format === "json") {
+          importedPosts = JSON.parse(text);
+        } else if (format === "csv") {
+          importedPosts = parseCSV(text);
+        } else if (format === "xml") {
+          importedPosts = parseXML(text);
+        }
+
+        if (!Array.isArray(importedPosts)) {
+          importedPosts = [importedPosts];
+        }
+
+        let count = 0;
+        for (const post of importedPosts) {
+          if (post.title && post.content) {
+            await addPost({
+              title: post.title,
+              content: post.content,
+              category: post.category || "Imported",
+              imageUrl: post.imageUrl || null
+            });
+            count++;
+          }
+        }
+        alert(`Successfully imported ${count} posts.`);
+      } catch (err) {
+        console.error("Import error:", err);
+        setError("Failed to import data. Check file format.");
+      } finally {
+        setLoading(false);
+        e.target.value = ""; // Clear file input
+      }
+    };
+    reader.readAsText(file);
   };
 
   const resetForm = () => {
@@ -223,18 +286,43 @@ export default function ForumPosts() {
       <div className="forum-section">
         <h2 style={{ marginBottom: 24, textAlign: 'center' }} ref={formRef}>Community Forum</h2>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-          <button
-            className="refresh-btn"
-            onClick={() => {
-              if (isFormVisible) resetForm();
-              else setIsFormVisible(true);
-            }}
-            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-          >
-            <FontAwesomeIcon icon={isFormVisible ? faTimes : faPlus} />
-            {isFormVisible ? "Cancel" : "Create Post"}
-          </button>
+        <div className="data-actions-container">
+          <div className="action-group">
+            <span className="action-label">EXPORT:</span>
+            <button className="data-btn" onClick={() => handleExport('json')}>JSON</button>
+            <button className="data-btn" onClick={() => handleExport('csv')}>CSV</button>
+            <button className="data-btn" onClick={() => handleExport('xml')}>XML</button>
+          </div>
+          
+          <div className="action-group">
+            <span className="action-label">IMPORT:</span>
+            <label className="data-btn">
+              JSON
+              <input type="file" accept=".json" onChange={(e) => handleImport(e, 'json')} style={{ display: 'none' }} />
+            </label>
+            <label className="data-btn">
+              CSV
+              <input type="file" accept=".csv" onChange={(e) => handleImport(e, 'csv')} style={{ display: 'none' }} />
+            </label>
+            <label className="data-btn">
+              XML
+              <input type="file" accept=".xml" onChange={(e) => handleImport(e, 'xml')} style={{ display: 'none' }} />
+            </label>
+          </div>
+
+          <div className="action-group main-action">
+            <button
+              className="refresh-btn"
+              onClick={() => {
+                if (isFormVisible) resetForm();
+                else setIsFormVisible(true);
+              }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <FontAwesomeIcon icon={isFormVisible ? faTimes : faPlus} />
+              {isFormVisible ? "Cancel" : "Create Post"}
+            </button>
+          </div>
         </div>
 
         {isFormVisible && (
