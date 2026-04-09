@@ -1,20 +1,20 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faEdit, faTrash, faPlus, faTimes, faFileExport, faFileImport } from '@fortawesome/free-solid-svg-icons';
-import { 
-  subscribeToPosts, 
-  addPost, 
-  updatePost, 
-  deletePost, 
+import {
+  subscribeToPosts,
+  addPost,
+  updatePost,
+  deletePost,
   likePost,
   getAllPosts
 } from "../../services/posts.service";
-import { 
-  postsToCSV, 
-  postsToXML, 
-  downloadFile, 
-  parseCSV, 
-  parseXML 
+import {
+  postsToCSV,
+  postsToXML,
+  downloadFile,
+  parseCSV,
+  parseXML
 } from "../../services/data-io.service";
 import Modal from "../modal/Modal";
 import "./ForumPosts.css";
@@ -107,7 +107,7 @@ export default function ForumPosts() {
 
     try {
       if (imageFile) {
-        if (imageFile.size > 1024 * 1024) { 
+        if (imageFile.size > 1024 * 1024) {
           throw new Error("Image too large. Please select a file smaller than 1MB.");
         }
 
@@ -134,7 +134,7 @@ export default function ForumPosts() {
       }
       setFormData({ title: "", content: "", category: "General" });
       setImageFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = ""; 
+      if (fileInputRef.current) fileInputRef.current.value = "";
       setIsFormVisible(false);
     } catch (err) {
       setError(`Error: ${err.message}`);
@@ -293,7 +293,7 @@ export default function ForumPosts() {
             <button className="data-btn" onClick={() => handleExport('csv')}>CSV</button>
             <button className="data-btn" onClick={() => handleExport('xml')}>XML</button>
           </div>
-          
+
           <div className="action-group">
             <span className="action-label">IMPORT:</span>
             <label className="data-btn">
@@ -310,19 +310,16 @@ export default function ForumPosts() {
             </label>
           </div>
 
-          <div className="action-group main-action">
             <button
-              className="refresh-btn"
+              className={`refresh-btn ${isFormVisible ? 'cancel-mode' : ''}`}
               onClick={() => {
                 if (isFormVisible) resetForm();
                 else setIsFormVisible(true);
               }}
-              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
             >
-              <FontAwesomeIcon icon={isFormVisible ? faTimes : faPlus} />
+              <FontAwesomeIcon icon={isFormVisible ? faTimes : faPlus} style={{ marginRight: 8 }} />
               {isFormVisible ? "Cancel" : "Create Post"}
             </button>
-          </div>
         </div>
 
         {isFormVisible && (
