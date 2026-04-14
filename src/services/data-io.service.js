@@ -1,13 +1,6 @@
-/**
- * Data I/O Service
- * Handles transformation of posts data between JSON and CSV/XML/JSON formats.
- */
+import * as XLSX from 'xlsx';
+import yaml from 'js-yaml';
 
-/**
- * Converts an array of posts to a CSV string
- * @param {Array} posts 
- * @returns {string}
- */
 export const postsToCSV = (posts) => {
   const headers = ["title", "content", "category", "likes", "imageUrl"];
   const rows = posts.map(post => 
@@ -20,11 +13,6 @@ export const postsToCSV = (posts) => {
   return [headers.join(","), ...rows].join("\n");
 };
 
-/**
- * Converts an array of posts to an XML string
- * @param {Array} posts 
- * @returns {string}
- */
 export const postsToXML = (posts) => {
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<posts>\n';
   posts.forEach(post => {
@@ -40,11 +28,6 @@ export const postsToXML = (posts) => {
   return xml;
 };
 
-/**
- * Parses a CSV string into an array of post objects
- * @param {string} csvText 
- * @returns {Array}
- */
 export const parseCSV = (csvText) => {
   const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== "");
   if (lines.length < 2) return [];
@@ -53,7 +36,7 @@ export const parseCSV = (csvText) => {
   const posts = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Split by comma outside quotes
+    const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); 
     const post = {};
     headers.forEach((header, index) => {
       let val = values[index] ? values[index].replace(/^"|"$/g, "").replace(/""/g, '"') : "";
@@ -65,11 +48,6 @@ export const parseCSV = (csvText) => {
   return posts;
 };
 
-/**
- * Parses an XML string into an array of post objects
- * @param {string} xmlText 
- * @returns {Array}
- */
 export const parseXML = (xmlText) => {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xmlText, "text/xml");
@@ -89,12 +67,6 @@ export const parseXML = (xmlText) => {
   return posts;
 };
 
-/**
- * Triggers a file download in the browser
- * @param {string} content 
- * @param {string} fileName 
- * @param {string} contentType 
- */
 export const downloadFile = (content, fileName, contentType) => {
   const a = document.createElement("a");
   const file = new Blob([content], { type: contentType });
@@ -103,8 +75,6 @@ export const downloadFile = (content, fileName, contentType) => {
   a.click();
   URL.revokeObjectURL(a.href);
 };
-
-// --- Helpers ---
 
 const escapeXML = (str) => {
   return str.replace(/[<>&"']/g, (c) => {
@@ -122,4 +92,129 @@ const escapeXML = (str) => {
 const getTagValue = (parent, tagName) => {
   const element = parent.getElementsByTagName(tagName)[0];
   return element ? element.textContent : "";
+};
+
+export const postsToTSV = (posts) => {
+  const headers = ["title", "content", "category", "likes", "imageUrl"];
+  const rows = posts.map(post => 
+    headers.map(header => {
+      const val = post[header] || "";
+      const stringVal = String(val).replace(/\t/g, ' ').replace(/\n/g, ' ');
+      return stringVal;
+    }).join("\t")
+  );
+  return [headers.join("\t"), ...rows].join("\n");
+};
+
+export const parseTSV = (tsvText) => {
+  const lines = tsvText.split(/\r?\n/).filter(line => line.trim() !== "");
+  if (lines.length < 2) return [];
+  const headers = lines[0].split("\t").map(h => h.trim());
+  const posts = [];
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].split("\t");
+    const post = {};
+    headers.forEach((header, index) => {
+      let val = values[index] ? values[index].trim() : "";
+      if (header === "likes") val = parseInt(val) || 0;
+      post[header] = val;
+    });
+    posts.push(post);
+  }
+  return posts;
+};
+
+export const postsToJSONL = (posts) => {
+  return posts.map(post => JSON.stringify(post)).join("\n");
+};
+
+export const parseJSONL = (jsonlText) => {
+  return jsonlText.split(/\r?\n/).filter(line => line.trim() !== "").map(line => {
+    return JSON.parse(line);
+  });
+};
+
+export const postsToYAML = (posts) => {
+  return yaml.dump(posts);
+};
+
+export const parseYAML = (yamlText) => {
+  return yaml.load(yamlText);
+};
+
+export const postsToHTML = (posts) => {
+  let html = "<table border='1'>\n<thead><tr><th>title</th><th>content</th><th>category</th><th>likes</th><th>imageUrl</th></tr></thead>\n<tbody>\n";
+  posts.forEach(post => {
+    html += `<tr><td>${escapeXML(post.title || "")}</td><td>${escapeXML(post.content || "")}</td><td>${escapeXML(post.category || "")}</td><td>${post.likes || 0}</td><td>${escapeXML(post.imageUrl || "")}</td></tr>\n`;
+  });
+  html += "</tbody></table>";
+  return html;
+};
+
+export const parseHTML = (htmlText) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlText, "text/html");
+  const rows = doc.querySelectorAll("tbody tr");
+  const posts = [];
+  rows.forEach(row => {
+    const cells = row.querySelectorAll("td");
+    if (cells.length >= 5) {
+      posts.push({
+        title: cells[0].textContent,
+        content: cells[1].textContent,
+        category: cells[2].textContent,
+        likes: parseInt(cells[3].textContent) || 0,
+        imageUrl: cells[4].textContent === "undefined" || !cells[4].textContent ? null : cells[4].textContent 
+      });
+    }
+  });
+  return posts;
+};
+
+export const postsToMD = (posts) => {
+  let md = "| title | content | category | likes | imageUrl |\n|---|---|---|---|---|\n";
+  posts.forEach(post => {
+    const row = [
+      (post.title || "").replace(/\|/g, '\\|').replace(/\n/g, '<br>'),
+      (post.content || "").replace(/\|/g, '\\|').replace(/\n/g, '<br>'),
+      (post.category || "").replace(/\|/g, '\\|').replace(/\n/g, '<br>'),
+      post.likes || 0,
+      (post.imageUrl || "").replace(/\|/g, '\\|')
+    ];
+    md += `| ${row.join(" | ")} |\n`;
+  });
+  return md;
+};
+
+export const parseMD = (mdText) => {
+  const lines = mdText.split(/\r?\n/).filter(line => line.trim().startsWith("|"));
+  if (lines.length < 3) return [];
+  const posts = [];
+  for (let i = 2; i < lines.length; i++) {
+    const cells = lines[i].split("|").slice(1, -1).map(c => c.trim().replace(/<br>/g, '\n').replace(/\\\|/g, '|'));
+    if (cells.length >= 5) {
+      posts.push({
+        title: cells[0],
+        content: cells[1],
+        category: cells[2],
+        likes: parseInt(cells[3]) || 0,
+        imageUrl: cells[4] === "" ? null : cells[4]
+      });
+    }
+  }
+  return posts;
+};
+
+export const exportXLSXDownload = (posts, fileName) => {
+  const worksheet = XLSX.utils.json_to_sheet(posts);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Posts");
+  XLSX.writeFile(workbook, fileName);
+};
+
+export const parseXLSXArrayBuffer = (buffer) => {
+  const workbook = XLSX.read(buffer, { type: 'array' });
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
+  return XLSX.utils.sheet_to_json(worksheet);
 };

@@ -14,7 +14,13 @@ import {
   postsToXML,
   downloadFile,
   parseCSV,
-  parseXML
+  parseXML,
+  postsToTSV, parseTSV,
+  postsToJSONL, parseJSONL,
+  postsToYAML, parseYAML,
+  postsToHTML, parseHTML,
+  postsToMD, parseMD,
+  exportXLSXDownload, parseXLSXArrayBuffer
 } from "../../services/data-io.service";
 import Modal from "../modal/Modal";
 import "./ForumPosts.css";
@@ -29,6 +35,7 @@ export default function ForumPosts() {
 
   const [formData, setFormData] = useState({ title: "", content: "", category: "General" });
   const [imageFile, setImageFile] = useState(null);
+  const [existingImageUrl, setExistingImageUrl] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -123,7 +130,7 @@ export default function ForumPosts() {
         title: formData.title,
         content: formData.content,
         category: formData.category || "General",
-        imageUrl: imageUrl || null
+        imageUrl: imageFile ? imageUrl : existingImageUrl
       };
 
       if (editingId) {
@@ -150,7 +157,8 @@ export default function ForumPosts() {
       category: post.category || "General",
     });
     setEditingId(post.id);
-    setImageFile(null); // Clear any pending image selection from other posts
+    setExistingImageUrl(post.imageUrl || null);
+    setImageFile(null); 
     if (fileInputRef.current) fileInputRef.current.value = "";
     setIsFormVisible(true);
 
@@ -175,6 +183,12 @@ export default function ForumPosts() {
     try {
       setLoading(true);
       const allPosts = await getAllPosts();
+      
+      if (format === "xlsx") {
+        exportXLSXDownload(allPosts, "posts_export.xlsx");
+        return;
+      }
+
       let content = "";
       let mimeType = "text/plain";
       let fileName = `posts_export.${format}`;
@@ -188,6 +202,21 @@ export default function ForumPosts() {
       } else if (format === "xml") {
         content = postsToXML(allPosts);
         mimeType = "application/xml";
+      } else if (format === "tsv") {
+        content = postsToTSV(allPosts);
+        mimeType = "text/tab-separated-values";
+      } else if (format === "jsonl") {
+        content = postsToJSONL(allPosts);
+        mimeType = "application/jsonlines";
+      } else if (format === "yaml") {
+        content = postsToYAML(allPosts);
+        mimeType = "application/x-yaml";
+      } else if (format === "html") {
+        content = postsToHTML(allPosts);
+        mimeType = "text/html";
+      } else if (format === "md") {
+        content = postsToMD(allPosts);
+        mimeType = "text/markdown";
       }
 
       downloadFile(content, fileName, mimeType);
@@ -199,9 +228,55 @@ export default function ForumPosts() {
     }
   };
 
+  const processImport = async (importedPosts, targetElement) => {
+    try {
+      if (!Array.isArray(importedPosts)) {
+        importedPosts = [importedPosts];
+      }
+
+      let count = 0;
+      for (const post of importedPosts) {
+        if (post.title && post.content) {
+          await addPost({
+            title: post.title,
+            content: post.content,
+            category: post.category || "Imported",
+            imageUrl: post.imageUrl || null
+          });
+          count++;
+        }
+      }
+      alert(`Successfully imported ${count} posts.`);
+    } catch (err) {
+      console.error("Import processing error:", err);
+      setError("Failed to save imported data.");
+    } finally {
+      setLoading(false);
+      if (targetElement) targetElement.value = "";
+    }
+  };
+
   const handleImport = (e, format) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (format === 'xlsx') {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
+                setLoading(true);
+                const buffer = event.target.result;
+                const importedPosts = parseXLSXArrayBuffer(buffer);
+                await processImport(importedPosts, e.target);
+            } catch (err) {
+                console.error("Import error:", err);
+                setError("Failed to import data. Check file format.");
+                setLoading(false);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+        return;
+    }
 
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -216,31 +291,23 @@ export default function ForumPosts() {
           importedPosts = parseCSV(text);
         } else if (format === "xml") {
           importedPosts = parseXML(text);
+        } else if (format === "tsv") {
+          importedPosts = parseTSV(text);
+        } else if (format === "jsonl") {
+          importedPosts = parseJSONL(text);
+        } else if (format === "yaml") {
+          importedPosts = parseYAML(text);
+        } else if (format === "html") {
+          importedPosts = parseHTML(text);
+        } else if (format === "md") {
+          importedPosts = parseMD(text);
         }
 
-        if (!Array.isArray(importedPosts)) {
-          importedPosts = [importedPosts];
-        }
-
-        let count = 0;
-        for (const post of importedPosts) {
-          if (post.title && post.content) {
-            await addPost({
-              title: post.title,
-              content: post.content,
-              category: post.category || "Imported",
-              imageUrl: post.imageUrl || null
-            });
-            count++;
-          }
-        }
-        alert(`Successfully imported ${count} posts.`);
+        await processImport(importedPosts, e.target);
       } catch (err) {
         console.error("Import error:", err);
         setError("Failed to import data. Check file format.");
-      } finally {
         setLoading(false);
-        e.target.value = ""; // Clear file input
       }
     };
     reader.readAsText(file);
@@ -249,6 +316,7 @@ export default function ForumPosts() {
   const resetForm = () => {
     setFormData({ title: "", content: "", category: "General" });
     setImageFile(null);
+    setExistingImageUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
     setEditingId(null);
     setIsFormVisible(false);
@@ -286,40 +354,46 @@ export default function ForumPosts() {
       <div className="forum-section">
         <h2 style={{ marginBottom: 24, textAlign: 'center' }} ref={formRef}>Community Forum</h2>
 
-        <div className="data-actions-container">
-          <div className="action-group">
-            <span className="action-label">EXPORT:</span>
-            <button className="data-btn" onClick={() => handleExport('json')}>JSON</button>
-            <button className="data-btn" onClick={() => handleExport('csv')}>CSV</button>
-            <button className="data-btn" onClick={() => handleExport('xml')}>XML</button>
+        <div className="data-actions-container" style={{ alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
+            <div className="action-group" style={{ flexWrap: 'wrap', height: 'auto', gap: '8px' }}>
+              <span className="action-label" style={{ width: '100%' }}>EXPORT:</span>
+              <button className="data-btn" onClick={() => handleExport('json')}>JSON</button>
+              <button className="data-btn" onClick={() => handleExport('csv')}>CSV</button>
+              <button className="data-btn" onClick={() => handleExport('xml')}>XML</button>
+              <button className="data-btn" onClick={() => handleExport('xlsx')}>XLSX</button>
+              <button className="data-btn" onClick={() => handleExport('tsv')}>TSV</button>
+              <button className="data-btn" onClick={() => handleExport('jsonl')}>JSONL</button>
+              <button className="data-btn" onClick={() => handleExport('yaml')}>YAML</button>
+              <button className="data-btn" onClick={() => handleExport('html')}>HTML</button>
+              <button className="data-btn" onClick={() => handleExport('md')}>MD</button>
+            </div>
+
+            <div className="action-group" style={{ flexWrap: 'wrap', height: 'auto', gap: '8px' }}>
+              <span className="action-label" style={{ width: '100%' }}>IMPORT:</span>
+              <label className="data-btn">JSON<input type="file" accept=".json" onChange={(e) => handleImport(e, 'json')} style={{ display: 'none' }} /></label>
+              <label className="data-btn">CSV<input type="file" accept=".csv" onChange={(e) => handleImport(e, 'csv')} style={{ display: 'none' }} /></label>
+              <label className="data-btn">XML<input type="file" accept=".xml" onChange={(e) => handleImport(e, 'xml')} style={{ display: 'none' }} /></label>
+              <label className="data-btn">XLSX<input type="file" accept=".xlsx,.xls" onChange={(e) => handleImport(e, 'xlsx')} style={{ display: 'none' }} /></label>
+              <label className="data-btn">TSV<input type="file" accept=".tsv" onChange={(e) => handleImport(e, 'tsv')} style={{ display: 'none' }} /></label>
+              <label className="data-btn">JSONL<input type="file" accept=".jsonl" onChange={(e) => handleImport(e, 'jsonl')} style={{ display: 'none' }} /></label>
+              <label className="data-btn">YAML<input type="file" accept=".yaml,.yml" onChange={(e) => handleImport(e, 'yaml')} style={{ display: 'none' }} /></label>
+              <label className="data-btn">HTML<input type="file" accept=".html" onChange={(e) => handleImport(e, 'html')} style={{ display: 'none' }} /></label>
+              <label className="data-btn">MD<input type="file" accept=".md" onChange={(e) => handleImport(e, 'md')} style={{ display: 'none' }} /></label>
+            </div>
           </div>
 
-          <div className="action-group">
-            <span className="action-label">IMPORT:</span>
-            <label className="data-btn">
-              JSON
-              <input type="file" accept=".json" onChange={(e) => handleImport(e, 'json')} style={{ display: 'none' }} />
-            </label>
-            <label className="data-btn">
-              CSV
-              <input type="file" accept=".csv" onChange={(e) => handleImport(e, 'csv')} style={{ display: 'none' }} />
-            </label>
-            <label className="data-btn">
-              XML
-              <input type="file" accept=".xml" onChange={(e) => handleImport(e, 'xml')} style={{ display: 'none' }} />
-            </label>
-          </div>
-
-            <button
-              className={`refresh-btn ${isFormVisible ? 'cancel-mode' : ''}`}
-              onClick={() => {
-                if (isFormVisible) resetForm();
-                else setIsFormVisible(true);
-              }}
-            >
-              <FontAwesomeIcon icon={isFormVisible ? faTimes : faPlus} style={{ marginRight: 8 }} />
-              {isFormVisible ? "Cancel" : "Create Post"}
-            </button>
+          <button
+            className={`refresh-btn ${isFormVisible ? 'cancel-mode' : ''}`}
+            style={{ marginBottom: '0', alignSelf: 'flex-end', marginLeft: '16px' }}
+            onClick={() => {
+              if (isFormVisible) resetForm();
+              else setIsFormVisible(true);
+            }}
+          >
+            <FontAwesomeIcon icon={isFormVisible ? faTimes : faPlus} style={{ marginRight: 8 }} />
+            {isFormVisible ? "Cancel" : "Create Post"}
+          </button>
         </div>
 
         {isFormVisible && (
@@ -349,13 +423,61 @@ export default function ForumPosts() {
                 placeholder="What do you want to share? (Required)"
                 required
               />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImageFile(e.target.files[0])}
-                className="form-input file-input"
-                ref={fileInputRef}
-              />
+              <div className="form-image-section">
+                <label className="form-label">Post Image</label>
+                <div className="file-input-wrapper">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImageFile(e.target.files[0])}
+                    className="form-input file-input"
+                    ref={fileInputRef}
+                    id="post-image-input"
+                  />
+                  <label htmlFor="post-image-input" className="file-input-button">
+                    {imageFile ? "Change Image" : (existingImageUrl ? "Replace Current Image" : "Select Image")}
+                  </label>
+                  {imageFile && (
+                    <span className="file-name-badge">
+                      {imageFile.name}
+                      <button type="button" className="remove-selection-btn" onClick={() => {
+                        setImageFile(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}>
+                        <FontAwesomeIcon icon={faTimes} />
+                      </button>
+                    </span>
+                  )}
+                </div>
+
+                {(imageFile || existingImageUrl) && (
+                  <div className="form-image-preview-container">
+                    <img 
+                      src={imageFile ? URL.createObjectURL(imageFile) : existingImageUrl} 
+                      alt="Preview" 
+                      className="form-image-preview" 
+                    />
+                    <button 
+                      type="button" 
+                      className="remove-image-btn"
+                      onClick={() => {
+                        if (imageFile) {
+                          setImageFile(null);
+                          if (fileInputRef.current) fileInputRef.current.value = "";
+                        } else {
+                          setExistingImageUrl(null);
+                        }
+                      }}
+                      title="Remove image"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                    {imageFile && (
+                      <div className="preview-badge">New Selection</div>
+                    )}
+                  </div>
+                )}
+              </div>
               <button type="submit" className="submit-post-btn" disabled={uploading}>
                 {uploading ? "Saving..." : (editingId ? "Update Post" : "Submit Post")}
               </button>
