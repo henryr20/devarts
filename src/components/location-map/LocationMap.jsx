@@ -7,7 +7,6 @@ import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 import './LocationMap.css';
 
-// Fix for default marker icon in Leaflet with bundlers
 let DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
@@ -18,7 +17,6 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const LocationMap = () => {
-    // Las Palmas de Gran Canaria coordinates
     const position = [28.1281, -15.4301];
 
     return (

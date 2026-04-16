@@ -1,0 +1,56 @@
+[
+    {
+        "id": 1,
+        "title": "Best approach for realistic skin texturing in Subtance Painter?",
+        "author": "PixelWizard",
+        "category": "Texturing",
+        "date": "2026-03-25",
+        "replies": 14,
+        "content": "I've been trying to get that translucent SSS look but it always ends up looking muddy. Any tips on layering maps?"
+    },
+    {
+        "id": 2,
+        "title": "Maya vs Blender for character rigging in 2024",
+        "author": "RiggingPro",
+        "category": "Rigging",
+        "date": "2026-03-24",
+        "replies": 32,
+        "content": "Is it time to fully switch to Blender for indie game rigs, or does Maya still hold the crown for complex facial setups?"
+    },
+    {
+        "id": 3,
+        "title": "Optimizing polycount for mobile VR",
+        "author": "OptimusPrim",
+        "category": "Optimization",
+        "date": "2026-03-22",
+        "replies": 8,
+        "content": "What's your strict budget for a hero asset in Quest 2 games? I'm hitting draw call limits."
+    },
+    {
+        "id": 4,
+        "title": "ZBrush 2024 new features discussion",
+        "author": "SculptMaster",
+        "category": "Modeling",
+        "date": "2026-03-20",
+        "replies": 45,
+        "content": "The new dynamic cloth brushes are insane. Anyone tried them on high-res meshes yet?"
+    },
+    {
+        "id": 5,
+        "title": "Baking normals: cage vs no cage?",
+        "author": "NormalGuy",
+        "category": "Texturing",
+        "date": "2026-03-18",
+        "replies": 21,
+        "content": "I usually bake without a cage in Marmoset, but I'm getting artifacts on hard edges. Should I use a cage?"
+    },
+    {
+        "id": 6,
+        "title": "Unreal Engine 5 Lumen performance on older GPUs",
+        "author": "LightCaster",
+        "category": "Lighting",
+        "date": "2026-03-15",
+        "replies": 56,
+        "content": "Can we realisticly use Hardware Raytracing with Lumen if our target audience has GTX 1080s?"
+    }
+]

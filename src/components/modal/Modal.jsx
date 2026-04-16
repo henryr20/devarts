@@ -9,7 +9,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 
         if (isOpen) {
             document.addEventListener('keydown', handleEsc);
-            document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+            document.body.style.overflow = 'hidden';
         }
 
         return () => {

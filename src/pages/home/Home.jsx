@@ -4,16 +4,16 @@ import Footer from '../../components/footer/Footer';
 import FeaturedTip from '../../components/featured-tip/FeaturedTip';
 import HomeGallery from '../../components/home-gallery/HomeGallery';
 import { tipsData } from '../../data/tips-data';
+import ForumPosts from "../../components/forum/ForumPosts";
+import ForumStatsChart from "../../components/forum-stats/ForumStatsChart";
 import './Home.css';
 
 const Home = () => {
     const [dailyTip, setDailyTip] = useState(null);
 
     useEffect(() => {
-        // Scroll to top on mount
         window.scrollTo(0, 0);
 
-        // Select a random tip
         const randomIndex = Math.floor(Math.random() * tipsData.length);
         setDailyTip(tipsData[randomIndex]);
     }, []);
@@ -43,6 +43,11 @@ const Home = () => {
                         level={dailyTip.level}
                     />
                 )}
+                
+                <ForumStatsChart />
+
+                <ForumPosts />
+
             </main>
             <Footer />
         </div>

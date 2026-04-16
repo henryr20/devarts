@@ -1,5 +1,6 @@
 import React from 'react';
 import { artPieces } from '../../data/art-data';
+import FeaturedWorkCard from '../featured-work-card/FeaturedWorkCard';
 import './HomeGallery.css';
 
 const HomeGallery = () => {
@@ -13,15 +14,7 @@ const HomeGallery = () => {
             </div>
             <div className="home-gallery-grid">
                 {featuredArt.map((art) => (
-                    <div key={art.id} className="home-art-card">
-                        <div className="home-art-image-wrapper">
-                            <img src={art.image} alt={art.title} className="home-art-image" />
-                        </div>
-                        <div className="home-art-info">
-                            <h3>{art.title}</h3>
-                            <p className="home-art-artist">Artist: {art.artist}</p>
-                        </div>
-                    </div>
+                    <FeaturedWorkCard key={art.id} art={art} />
                 ))}
             </div>
             <div className="home-gallery-footer">
