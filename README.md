@@ -34,8 +34,8 @@ A functional communication hub featuring:
 
 ### 💾 Data Management (Import & Export)
 Fully integrated data portability system for community posts:
-- **Dynamic Export**: Generate and download application data in **CSV**, **XML**, and **JSON** formats.
-- **Bulk Import**: Seamlessly ingest data into the **Firebase Firestore** backend from structured files.
+- **Dynamic Export**: Generate and download application data in **JSON**, **CSV**, **XML**, **TSV**, **JSONL**, **YAML**, **Markdown**, **HTML**, and **Excel (XLSX)** formats.
+- **Bulk Import**: Seamlessly ingest data into the **Firebase Firestore** backend from any of the supported structured files.
 - **Standardized Formats**: Adheres to strict schemas to ensure data integrity across platforms.
 
 ---
