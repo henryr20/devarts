@@ -42,9 +42,9 @@ Fully integrated data portability system for community posts:
 
 ## 📂 Example Import Files
 Use these templates to test the platform's data ingestion capabilities:
-- 📄 [datos.csv](/datos.csv)
-- 📄 [datos.xml](/datos.xml)
-- 📄 [datos.json](/datos.json)
+- 📄 [datos.csv](./public/datos.csv)
+- 📄 [datos.xml](./public/datos.xml)
+- 📄 [datos.json](./public/datos.json)
 
 ---
 
