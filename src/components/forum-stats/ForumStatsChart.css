@@ -28,7 +28,7 @@
   position: relative;
   height: 400px;
   width: 100%;
-  padding: 2.5rem; /* Increased padding to prevent hover clipping */
+  padding: 2.5rem; 
 }
 
 .forum-stats-chart.loading,
