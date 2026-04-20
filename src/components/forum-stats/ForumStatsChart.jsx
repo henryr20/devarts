@@ -35,14 +35,14 @@ export default function ForumStatsChart() {
               label: 'Number of Posts',
               data,
               backgroundColor: [
-                'rgba(56, 189, 248, 0.85)', // Sky Blue
-                'rgba(248, 113, 113, 0.85)', // Soft Red
-                'rgba(74, 222, 128, 0.85)', // Emerald Green
-                'rgba(250, 204, 21, 0.85)', // Bright Yellow
-                'rgba(192, 132, 252, 0.85)', // Purple
-                'rgba(251, 146, 60, 0.85)', // Orange
-                'rgba(45, 212, 191, 0.85)', // Teal
-                'rgba(244, 114, 182, 0.85)', // Pink
+                'rgba(56, 189, 248, 0.85)', 
+                'rgba(248, 113, 113, 0.85)', 
+                'rgba(74, 222, 128, 0.85)', 
+                'rgba(250, 204, 21, 0.85)', 
+                'rgba(192, 132, 252, 0.85)', 
+                'rgba(251, 146, 60, 0.85)', 
+                'rgba(45, 212, 191, 0.85)', 
+                'rgba(244, 114, 182, 0.85)', 
               ],
               borderColor: [
                 '#0ea5e9',
@@ -72,7 +72,7 @@ export default function ForumStatsChart() {
         });
         setLoading(false);
       },
-      {}, // No options (no sorting)
+      {}, 
       (err) => {
         console.error(err);
         setError('Error loading stats chart.');

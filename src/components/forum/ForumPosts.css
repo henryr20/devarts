@@ -26,7 +26,7 @@
     padding: 6px 12px;
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    height: 42px; /* Normalized height */
+    height: 42px; 
 }
 
 .action-label {
@@ -58,13 +58,13 @@
 
 .data-btn:hover {
     background: rgba(56, 189, 248, 0.2);
-    /* Removed: transform translateY */
+    
 }
 
 .refresh-btn {
     margin-left: auto;
     padding: 0 24px;
-    height: 42px; /* Matching action-group height for perfect alignment */
+    height: 42px; 
     background: var(--accent-color);
     border: none;
     border-radius: 8px;
@@ -80,7 +80,7 @@
 
 .refresh-btn:hover {
     filter: brightness(1.1);
-    /* Removed: transform translateY */
+    
 }
 
 .refresh-btn.cancel-mode {
@@ -88,7 +88,7 @@
     color: white;
 }
 
-/* --- Responsive Helpers --- */
+
 @media (max-width: 768px) {
     .data-actions-container {
         flex-direction: column;
@@ -101,17 +101,17 @@
     }
 }
 
-/* --- Search & Filters --- */
+
 .forum-controls {
     display: flex;
     flex-direction: column;
-    gap: 18px; /* Balanced separation */
+    gap: 18px; 
     margin-bottom: 32px;
 }
 
 .search-bar {
     width: 100%;
-    padding: 12px 20px; /* Increased height */
+    padding: 12px 20px; 
     background: #1a1a1a;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
@@ -137,7 +137,7 @@
 .filter-select {
     appearance: none;
     -webkit-appearance: none;
-    padding: 8px 36px 8px 14px; /* Thinner */
+    padding: 8px 36px 8px 14px; 
     background: #1a1a1a;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2338bdf8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -219,7 +219,7 @@
     filter: brightness(1.1);
 }
 
-/* --- Posts List --- */
+
 .posts-list {
     display: grid;
     gap: 20px;
@@ -323,7 +323,7 @@
     color: #64748b;
 }
 
-/* --- Form Image Handling --- */
+
 .form-image-section {
     grid-column: span 2;
     background: rgba(255, 255, 255, 0.02);
